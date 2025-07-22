@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Velocity-Time Graph</title>
+  <style>
+    canvas {
+      border: 1px solid #333;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="graph" width="600" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('graph');
+    const ctx = canvas.getContext('2d');
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // 그래프 매개변수
+    const margin = 50;
+    const v0 = 10;    // 초기 속도
+    const a = 24;     // 가속도
+    const tMax = 10;  // 시간 최대값
+    const vMax = v0 + a * tMax; // 속도 최대값
+
+    // 축 그리기
+    function drawAxes() {
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+
+      // x축
+      ctx.beginPath();
+      ctx.moveTo(margin, height - margin);
+      ctx.lineTo(width - margin, height - margin);
+      ctx.stroke();
+
+      // y축
+      ctx.beginPath();
+      ctx.moveTo(margin, margin);
+      ctx.lineTo(margin, height - margin);
+      ctx.stroke();
+
+      // x축 눈금 및 라벨
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      for(let i = 0; i <= 10; i++) {
+        const x = margin + i * (width - 2 * margin) / 10;
+        ctx.beginPath();
+        ctx.moveTo(x, height - margin);
+        ctx.lineTo(x, height - margin + 5);
+        ctx.stroke();
+        ctx.fillText((i).toString(), x, height - margin + 8);
+      }
+      ctx.fillText('Time (s)', width/2, height - margin + 30);
+
+      // y축 눈금 및 라벨 (10 단위)
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      for(let i = 0; i <= vMax; i += 10) {
+        const y = height - margin - (i / vMax) * (height - 2 * margin);
+        ctx.beginPath();
+        ctx.moveTo(margin - 5, y);
+        ctx.lineTo(margin, y);
+        ctx.stroke();
+        ctx.fillText(i.toString(), margin - 8, y);
+      }
+      ctx.save();
+      ctx.translate(margin - 40, height/2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Velocity (m/s)', 0, 0);
+      ctx.restore();
+    }
+
+    // 그래프 그리기
+    function drawGraph() {
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      for(let i = 0; i <= 100; i++) {
+        const t = i * tMax / 100;
+        const v = v0 + a * t;
+
+        const x = margin + (t / tMax) * (width - 2 * margin);
+        const y = height - margin - (v / vMax) * (height - 2 * margin);
+
+        if(i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+
+      ctx.stroke();
+
+      // 초기속도 점 빨간색 표시
+      const startX = margin;
+      const startY = height - margin - (v0 / vMax) * (height - 2 * margin);
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(startX, startY, 5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    // 전체 실행
+    drawAxes();
+    drawGraph();
+  </script>
+</body>
+</html>
